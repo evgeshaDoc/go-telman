@@ -18,7 +18,7 @@ type Config struct {
 	DOPPLER_ENVIRONMENT string
 	DOPPLER_PROJECT     string
 	TELEGRAM_API_HASH   string
-	TELEGRAM_API_ID     string
+	TELEGRAM_API_ID     int
 }
 
 func setField(obj interface{}, name string, value interface{}) error {
