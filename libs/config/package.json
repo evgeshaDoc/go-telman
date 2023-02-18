@@ -1,6 +1,10 @@
 {
   "name": "@telman/config",
   "private": true,
+  "scripts": {
+	"build": "tsc"
+  },
+  "main": "./dist/index.js",
   "dependencies": {
     "dotenv": "16.0.3",
     "envalid": "7.3.1"

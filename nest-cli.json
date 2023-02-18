@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "compilerOptions": {"tsConfigPath": "tsconfig.json"},
+  "projects": {
+    "api": {
+      "type": "application",
+      "root": "pacakages/api",
+      "entryFile": "index",
+      "sourceRoot": "pacakages/api/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/api/tsconfig.json"
+      }
+    }
+  }
+}
