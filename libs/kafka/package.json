@@ -1,0 +1,12 @@
+{
+  "name": "@telman/kafka",
+  "private": true,
+  "scripts": {
+	"build": "tsc"
+  },
+  "dependencies": {
+    "@nestjs/common": "9.3.9",
+    "@nestjs/microservices": "9.3.9",
+    "@telman/config": "workspace:*"
+  }
+}
