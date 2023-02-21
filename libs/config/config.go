@@ -19,6 +19,14 @@ type Config struct {
 	DOPPLER_PROJECT     string
 	TELEGRAM_API_HASH   string
 	TELEGRAM_API_ID     int
+	POSTGRES_USER       string
+	POSTGRES_PASSWORD   string
+	POSTGRES_DB         string
+	POSTGRES_HOST       string
+	POSTGRES_PORT       int
+	USERS_QUEUE         string
+	AUTH_QUEUE          string
+	KAFKA_BROKERS       string
 }
 
 func setField(obj interface{}, name string, value interface{}) error {
