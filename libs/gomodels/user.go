@@ -3,7 +3,7 @@ package gomodels
 import "time"
 
 type User struct {
-	Id              string    `gorm:"primary_key;column:id;type:TEXT" json:"id"`
+	Id              string    `gorm:"primary_key;column:id;type:uuid;default:uuid_generate_v4()" json:"id"`
 	Email           string    `gorm:"column:email;type:TEXT" json:"email"`
 	Password        string    `gorm:"column:password;type:TEXT" json:"password"`
 	Name            string    `gorm:"column:name;type:TEXT" json:"name"`
