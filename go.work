@@ -1,6 +1,7 @@
 go 1.19
 
 use (
-	./packages/auth
 	./libs/config
+	./packages/user
+	./libs/kafka
 )

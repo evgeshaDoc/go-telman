@@ -5,9 +5,9 @@
   "projects": {
     "api": {
       "type": "application",
-      "root": "pacakages/api",
+      "root": "packages/api",
       "entryFile": "index",
-      "sourceRoot": "pacakages/api/src",
+      "sourceRoot": "packages/api/src",
       "compilerOptions": {
         "tsConfigPath": "packages/api/tsconfig.json"
       }
