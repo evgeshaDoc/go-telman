@@ -1,4 +1,4 @@
-module github.com/evgeshaDoc/go-telman/libs/kafkaConfig
+module github.com/evgeshaDoc/go-telman/libs/kafka
 
 go 1.19
 
