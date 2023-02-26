@@ -1,12 +1,14 @@
 {
-  "name": "@telman/kafka",
-  "private": true,
-  "scripts": {
-	"build": "tsc"
-  },
-  "dependencies": {
-    "@nestjs/common": "9.3.9",
-    "@nestjs/microservices": "9.3.9",
-    "@telman/config": "workspace:*"
-  }
+	"name": "@telman/kafka",
+	"private": true,
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsc"
+	},
+	"dependencies": {
+		"@nestjs/common": "9.3.9",
+		"@nestjs/microservices": "9.3.9",
+		"@telman/config": "workspace:*"
+	}
 }
