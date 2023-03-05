@@ -1,86 +1,75 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
+import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { compare } from 'bcrypt'
-import { CreateUserDto } from '../user/dto/createUser.dto'
-import { UserService } from '../user/user.service'
+import { ClientKafka } from '@nestjs/microservices'
+import { ServicesEnum } from '@telman/kafka'
 import { LoginDto } from './dto/login.dto'
 import { JwtPayload } from './strategies/accessToken.strategy'
 
 @Injectable()
 export class AuthService {
-    constructor(
-        private userService: UserService,
-        private jwtService: JwtService,
-        private configService: ConfigService,
-    ) {}
+	constructor(
+		private jwtService: JwtService,
+		@Inject(ServicesEnum.AUTH) private authClient: ClientKafka,
+	) {}
 
-    async signIn(loginDto: LoginDto) {
-        try {
-            const user = await this.userService.findBy({
-                where: { email: loginDto.email },
-                select: { password: true },
-            })
+	async signIn(loginDto: LoginDto) {
+		try {
+			this.authClient.send('signIn', loginDto).subscribe()
+			return this.getTokens(user.id, user.name)
+		} catch (error) {
+			throw error
+		}
+	}
 
-            const comparePass = await compare(loginDto.password, user.password)
+	async signUp(createUserDto: CreateUserDto) {
+		try {
+			const candiate = await this.userService.create(createUserDto)
 
-            if (!comparePass) throw new NotFoundException()
+			if (!candiate) throw new Error('[AuthModule] Error creating user')
 
-            return this.getTokens(user.id, user.name)
-        } catch (error) {
-            throw error
-        }
-    }
+			const user = await this.userService.findOneByEmail(
+				createUserDto.email,
+			)
 
-    async signUp(createUserDto: CreateUserDto) {
-        try {
-            const candiate = await this.userService.create(createUserDto)
+			return this.getTokens(user.id, user.name)
+		} catch (error) {
+			throw error
+		}
+	}
 
-            if (!candiate) throw new Error('[AuthModule] Error creating user')
+	async refreshTokens(tokeDto: JwtPayload) {
+		return this.getTokens(tokeDto.userId, tokeDto.name)
+	}
 
-            const user = await this.userService.findOneByEmail(
-                createUserDto.email,
-            )
+	async getTokens(userId: string, name: string) {
+		const [accessToken, refreshToken] = await Promise.all([
+			this.jwtService.signAsync(
+				{
+					userId,
+					name,
+				},
+				{
+					secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+					expiresIn: '15m',
+				},
+			),
+			this.jwtService.signAsync(
+				{
+					userId,
+					name,
+				},
+				{
+					secret: this.configService.get<string>(
+						'JWT_REFRESH_SECRET',
+					),
+					expiresIn: '7d',
+				},
+			),
+		])
 
-            return this.getTokens(user.id, user.name)
-        } catch (error) {
-            throw error
-        }
-    }
-
-    async refreshTokens(tokeDto: JwtPayload) {
-        return this.getTokens(tokeDto.userId, tokeDto.name)
-    }
-
-    async getTokens(userId: string, name: string) {
-        const [accessToken, refreshToken] = await Promise.all([
-            this.jwtService.signAsync(
-                {
-                    userId,
-                    name,
-                },
-                {
-                    secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-                    expiresIn: '15m',
-                },
-            ),
-            this.jwtService.signAsync(
-                {
-                    userId,
-                    name,
-                },
-                {
-                    secret: this.configService.get<string>(
-                        'JWT_REFRESH_SECRET',
-                    ),
-                    expiresIn: '7d',
-                },
-            ),
-        ])
-
-        return {
-            accessToken,
-            refreshToken,
-        }
-    }
+		return {
+			accessToken,
+			refreshToken,
+		}
+	}
 }

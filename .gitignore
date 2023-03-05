@@ -3,3 +3,7 @@ node_modules/
 .env
 
 /libs/**/dist
+
+
+zookeeper_data
+kafka_data

@@ -7,54 +7,51 @@ import { JwtPayload } from './strategies/accessToken.strategy'
 
 @Injectable()
 export class AuthService {
-    constructor(
-        private userService: UserService,
-        private jwtService: JwtService,
-    ) {}
+	constructor(private jwtService: JwtService) {}
 
-    async signIn(loginDto: LoginDto) {
-        try {
-        } catch (error) {
-            throw error
-        }
-    }
+	async signIn(loginDto: LoginDto) {
+		try {
+		} catch (error) {
+			throw error
+		}
+	}
 
-    async signUp(createUserDto: CreateUserDto) {
-        try {
-        } catch (error) {
-            throw error
-        }
-    }
+	async signUp(createUserDto: CreateUserDto) {
+		try {
+		} catch (error) {
+			throw error
+		}
+	}
 
-    async refreshTokens(tokeDto: JwtPayload) {
-        return this.getTokens(tokeDto.userId, tokeDto.name)
-    }
+	async refreshTokens(tokeDto: JwtPayload) {
+		return this.getTokens(tokeDto.userId, tokeDto.name)
+	}
 
-    async getTokens(userId: string, name: string) {
-        const [accessToken, refreshToken] = await Promise.all([
-            this.jwtService.signAsync(
-                {
-                    userId,
-                    name,
-                },
-                {
-                    expiresIn: '15m',
-                },
-            ),
-            this.jwtService.signAsync(
-                {
-                    userId,
-                    name,
-                },
-                {
-                    expiresIn: '7d',
-                },
-            ),
-        ])
+	async getTokens(userId: string, name: string) {
+		const [accessToken, refreshToken] = await Promise.all([
+			this.jwtService.signAsync(
+				{
+					userId,
+					name,
+				},
+				{
+					expiresIn: '15m',
+				},
+			),
+			this.jwtService.signAsync(
+				{
+					userId,
+					name,
+				},
+				{
+					expiresIn: '7d',
+				},
+			),
+		])
 
-        return {
-            accessToken,
-            refreshToken,
-        }
-    }
+		return {
+			accessToken,
+			refreshToken,
+		}
+	}
 }

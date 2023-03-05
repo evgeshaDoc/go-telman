@@ -5,30 +5,28 @@ import { SendGetUser } from './types/main'
 
 @Injectable()
 export class UserService {
-    constructor(@Inject('USER') private usersServiceClient: ClientProxy) {}
+	async onApplicationBootstap() {
+		// await this.usersServiceClient.connect()
+	}
 
-    async onApplicationBootstap() {
-        await this.usersServiceClient.connect()
-    }
+	async create(id: string) {
+		// const result = this.usersServiceClient.emit<SendGetUser>('userGet', id)
+		return 'This action adds a new user'
+	}
 
-    async create(id: string) {
-        const result = this.usersServiceClient.emit<SendGetUser>('userGet', id)
-        return 'This action adds a new user'
-    }
+	findAllAvailable() {
+		return `This action returns all user`
+	}
 
-    findAllAvailable() {
-        return `This action returns all user`
-    }
+	findOne(id: string) {
+		return `This action returns a #${id} user`
+	}
 
-    findOne(id: string) {
-        return `This action returns a #${id} user`
-    }
+	update(updateUserDto: UpdateUserDto) {
+		return `This action updates a #${updateUserDto} user`
+	}
 
-    update(updateUserDto: UpdateUserDto) {
-        return `This action updates a #${updateUserDto} user`
-    }
-
-    remove(id: string) {
-        return `This action removes a #${id} user`
-    }
+	remove(id: string) {
+		return `This action removes a #${id} user`
+	}
 }
