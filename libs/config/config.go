@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"reflect"
 
 	"github.com/joho/godotenv"
@@ -62,11 +63,12 @@ func (c *Config) fillStruct(m map[string]interface{}) error {
 }
 
 func GetConfig() (config Config, err error) {
-	err = godotenv.Load()
+	currentWorkDirectory, _ := os.Getwd()
+	absPath, _ := filepath.Abs(currentWorkDirectory + "/../../.env")
+	err = godotenv.Load(absPath)
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	fmt.Println(os.Getenv("DOPPLER_TOKEN"))
 	resp, err := http.Get("https://" + os.Getenv("DOPPLER_TOKEN") + "@api.doppler.com/v3/configs/config/secrets/download?format=json")
 
 	if err != nil {
@@ -82,7 +84,6 @@ func GetConfig() (config Config, err error) {
 	}
 	json.Unmarshal(body, &parsedBody)
 
-	fmt.Println(parsedBody)
 	config = Config{}
 	err = config.fillStruct(parsedBody)
 	if err != nil {
@@ -90,6 +91,5 @@ func GetConfig() (config Config, err error) {
 		return
 	}
 
-	fmt.Printf("%+v", config)
 	return config, nil
 }
