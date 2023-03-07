@@ -2,14 +2,12 @@ package config
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-	"reflect"
 
 	"github.com/joho/godotenv"
 )
@@ -19,47 +17,15 @@ type Config struct {
 	DOPPLER_ENVIRONMENT string
 	DOPPLER_PROJECT     string
 	TELEGRAM_API_HASH   string
-	TELEGRAM_API_ID     int
+	TELEGRAM_API_ID     int `json:",string"`
 	POSTGRES_USER       string
 	POSTGRES_PASSWORD   string
 	POSTGRES_DB         string
 	POSTGRES_HOST       string
-	POSTGRES_PORT       int
+	POSTGRES_PORT       int `json:",string"`
 	USERS_QUEUE         string
 	AUTH_QUEUE          string
 	KAFKA_BROKERS       string
-}
-
-func setField(obj interface{}, name string, value interface{}) error {
-	structValue := reflect.ValueOf(obj).Elem()
-	structFieldValue := structValue.FieldByName(name)
-
-	if !structFieldValue.IsValid() {
-		return fmt.Errorf("no such field: %s in obj", name)
-	}
-
-	if !structFieldValue.CanSet() {
-		return fmt.Errorf("cannot set %s field value", name)
-	}
-
-	structFieldType := structFieldValue.Type()
-	val := reflect.ValueOf(value)
-	if structFieldType != val.Type() {
-		return errors.New("provided value type didn't match obj field type")
-	}
-
-	structFieldValue.Set(val)
-	return nil
-}
-
-func (c *Config) fillStruct(m map[string]interface{}) error {
-	for k, v := range m {
-		err := setField(c, k, v)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func GetConfig() (config Config, err error) {
@@ -76,7 +42,7 @@ func GetConfig() (config Config, err error) {
 		return
 	}
 
-	var parsedBody map[string]interface{}
+	var parsedBody Config
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println(err)
@@ -84,12 +50,5 @@ func GetConfig() (config Config, err error) {
 	}
 	json.Unmarshal(body, &parsedBody)
 
-	config = Config{}
-	err = config.fillStruct(parsedBody)
-	if err != nil {
-		fmt.Printf("Error on filling config struct: %+v\n", err)
-		return
-	}
-
-	return config, nil
+	return parsedBody, nil
 }
