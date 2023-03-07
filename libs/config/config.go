@@ -23,8 +23,6 @@ type Config struct {
 	POSTGRES_DB         string
 	POSTGRES_HOST       string
 	POSTGRES_PORT       int `json:",string"`
-	USERS_QUEUE         string
-	AUTH_QUEUE          string
 	KAFKA_BROKERS       string
 }
 
