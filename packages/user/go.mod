@@ -21,3 +21,9 @@ require (
 	gorm.io/driver/postgres v1.4.8 // indirect
 	gorm.io/gorm v1.24.5 // indirect
 )
+
+replace github.com/evgeshaDoc/go-telman/libs/config => ../../libs/config
+
+replace github.com/evgeshaDoc/go-telman/libs/gomodels => ../../libs/gomodels
+
+replace github.com/evgeshaDoc/go-telman/libs/kafka => ../../libs/kafka

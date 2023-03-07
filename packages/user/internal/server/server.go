@@ -3,6 +3,9 @@ package server
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/signal"
+	"time"
 
 	"github.com/evgeshaDoc/go-telman/libs/config"
 	kafkaConfig "github.com/evgeshaDoc/go-telman/libs/kafka"
@@ -14,10 +17,15 @@ import (
 type Server struct {
 	authReader *kafka.Reader
 	userWriter *kafka.Writer
+	userReader *kafka.Reader
 	db         *gorm.DB
 }
 
-func New() Server {
+func New() *Server {
+	return &Server{}
+}
+
+func (s *Server) Run() {
 	localConfig, err := config.GetConfig()
 
 	if err != nil {
@@ -39,18 +47,15 @@ func New() Server {
 	}
 
 	authReader := kafka.NewReader(kafkaConfig.KafkaConsumerConfig(kafkaConfig.AUTH))
-	userWriter := kafka.NewWriter(kafkaConfig.KafkaWriterConfig(kafkaConfig.USER))
+	userWriter := kafka.NewWriter(kafkaConfig.KafkaWriterConfig(kafkaConfig.USER + ".req"))
+	userReader := kafka.NewReader(kafkaConfig.KafkaConsumerConfig(kafkaConfig.USER))
 
-	server := Server{
-		authReader: authReader,
-		userWriter: userWriter,
-		db:         dbConn,
-	}
+	s.authReader = authReader
+	s.userWriter = userWriter
+	s.userReader = userReader
+	s.db = dbConn
 
-	return server
-}
-
-func (s *Server) Run() {
+	fmt.Println("Running user server")
 	defer s.authReader.Close()
 	defer s.userWriter.Close()
 	defer func() {
@@ -58,7 +63,24 @@ func (s *Server) Run() {
 		_ = sqlConn.Close()
 	}()
 
-	go (func() {
+	errChan := make(chan os.Signal, 1)
+
+	signal.Notify(errChan, os.Interrupt, os.Interrupt)
+
+	go s.listenToMessages()
+
+	<-errChan
+
+	_, shutdown := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutdown()
+
+	fmt.Println("Shutting down server...")
+
+	return
+}
+
+func (s *Server) listenToMessages() {
+	go func() {
 		for {
 			message, err := s.authReader.ReadMessage(context.Background())
 			if err != nil {
@@ -67,6 +89,16 @@ func (s *Server) Run() {
 			}
 			go authHandler(message, s.db)
 		}
-	})()
+	}()
 
+	go func() {
+		for {
+			message, err := s.userReader.ReadMessage(context.Background())
+			if err != nil {
+				fmt.Errorf("error on reading message: %+v", err)
+				continue
+			}
+			fmt.Printf("Incoming user topic message: %+v", message)
+		}
+	}()
 }

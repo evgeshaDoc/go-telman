@@ -27,6 +27,26 @@ services:
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
             KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
             KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+    db:
+        container_name: db
+        image: postgres:15-alpine
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER:-postgres}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+            PGDATA: /data/postgres
+            POSTGRES_DB: ${POSTGRES_DB:-telman}
+        volumes:
+            - ./postgres:/data/postgres
+        ports:
+            - "5432:5432"
+        networks:
+            - postgres
+        restart: unless-stopped
+
 networks:
     kafka:
         name: kafka
+    postgres:
+        name: postgres
+        driver: bridge

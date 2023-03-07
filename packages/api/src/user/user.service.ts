@@ -1,32 +1,39 @@
-import { Inject, Injectable } from '@nestjs/common'
-import { ClientProxy } from '@nestjs/microservices'
+import { HttpException, Inject, Injectable } from '@nestjs/common'
+import { ClientKafka } from '@nestjs/microservices'
+import { ServicesEnum } from '@telman/kafka'
+import { CreateUserDto } from './dto/createUser.dto'
 import { UpdateUserDto } from './dto/updateUser.dto'
-import { SendGetUser } from './types/main'
+import { SendData } from './types/main'
 
 @Injectable()
 export class UserService {
-	async onApplicationBootstap() {
-		// await this.usersServiceClient.connect()
-	}
+    constructor(@Inject(ServicesEnum.USER) private userClient: ClientKafka) {}
 
-	async create(id: string) {
-		// const result = this.usersServiceClient.emit<SendGetUser>('userGet', id)
-		return 'This action adds a new user'
-	}
+    async onApplicationBootstap() {
+        await this.userClient.connect()
+    }
 
-	findAllAvailable() {
-		return `This action returns all user`
-	}
+    async create(createUserDto: CreateUserDto) {
+        const result = this.userClient.emit<HttpException, CreateUserDto>(
+            ServicesEnum.USER,
+            createUserDto,
+        )
+        return 'This action adds a new user'
+    }
 
-	findOne(id: string) {
-		return `This action returns a #${id} user`
-	}
+    findAllAvailable() {
+        return `This action returns all user`
+    }
 
-	update(updateUserDto: UpdateUserDto) {
-		return `This action updates a #${updateUserDto} user`
-	}
+    findOne(id: string) {
+        return `This action returns a #${id} user`
+    }
 
-	remove(id: string) {
-		return `This action removes a #${id} user`
-	}
+    update(updateUserDto: UpdateUserDto) {
+        return `This action updates a #${updateUserDto} user`
+    }
+
+    remove(id: string) {
+        return `This action removes a #${id} user`
+    }
 }

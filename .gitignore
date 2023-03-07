@@ -7,3 +7,4 @@ node_modules/
 
 zookeeper_data
 kafka_data
+postgres

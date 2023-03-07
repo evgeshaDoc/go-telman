@@ -3,7 +3,7 @@ package main
 import "github.com/evgeshaDoc/go-telman/packages/user/internal/server"
 
 func main() {
-	server := server.New()
+	instance := server.New()
 
-	server.Run()
+	instance.Run()
 }
